@@ -17,7 +17,7 @@ let buttonsDOM = [];
 class Products{
     async getProducts(){
         try{
-            let result = await fetch('products.json')
+            let result = await fetch('js/products.json')
             let data = await result.json();
             let products =data.items;
             products = products.map(item =>{
@@ -28,7 +28,7 @@ class Products{
             })
             return products;
             } catch (error){
-                console.log(error);
+           
         }
     }
 }
@@ -122,7 +122,7 @@ class UI {
                         <i class="fas fa-chevron-down" data-id=${item.id}></i>
                     </div>`;
                     cartContent.appendChild(div);
-                    
+                
     }
     showCart(){
         cartOverlay.classList.add("transparentBcg");
@@ -141,6 +141,29 @@ class UI {
     hideCart(){
         cartOverlay.classList.remove("transparentBcg");
         cartDOM.classList.remove("showCart");
+    }
+    cartLogic() {
+        clearCartBtn.addEventListener('click', () => {
+            this.clearCart();
+        });
+    }
+    clearCart() {
+       let cartItems = cart.map(item => item.id);
+       cartItems.forEach(id => this.removeItem(id));
+       while(cartContent.children.length>0){
+           cartContent.removeChild(cartContent.children[0])
+       }
+    }
+    removeItem(id) {
+        cart = cart.filter(item => item.id !==id);
+        this.setCartValues(cart);
+        Storage.saveCart(cart);
+        let button = this.getSingleButton(id);
+        button.disable = false;
+        button.innerHTML = `<i class="fas fa-shopping-cart></i>add to cart`;
+    }
+    getSingleButton(id) {
+        return buttonsDOM.find(button => button.dataset.id === id);
     }
 }
 
@@ -174,6 +197,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
     })
     .then(()=>{
         ui.getBagButtons();
+        ui.cartLogic();
     });
 
 });
